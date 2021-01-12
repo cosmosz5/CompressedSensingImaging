@@ -1,7 +1,7 @@
 # CompressedSensingImaging
 This repository includes software to recover interferometric images based on Compressed Sensing
-# Introduction
-## The "ill-posed" problem of interferometric imaging}
+# 1. Introduction
+## 1.1 The "ill-posed" problem of interferometric imaging
 With a resolution power between ten and several thousand times better than stand-alone telescopes, interferometry is a technique capable of providing us the best angular resolution for astronomical observations. With the possibility to recover milliarcseconds (mas) images in the infrared and microarcseconds (&mu;as) with the new very long-baseline interferometers (VLBI) in the (sub-)millimeter, interferometry is key to research that goes from the search of exo-planets<sup>1</sup> , to study high-mass stars<sup>2</sup>, proto-planetary disks<sup>3</sup>, to map the core of Active Galactic Nuclei<sup>4</sup> and, to probe fundamental physics<sup>5</sup>.
 
 Imaging is the most intuitive form to analyze complex interferometric data. At centimeter wavelengths, imaging has been possible since the 1960s. However, this is different in the infrared and with the new VLBI (sub-)millimeter arrays. There are two main problems: (i) the interferometric arrays are only composed by a few telescopes or antennas and; (ii) the atmosphere corrupts the phase of the observations, preventing their proper calibration, and forcing us to look for another observable to infer the centro-symmetric morphology of the observed source: the closure phase (see e.g., <sup>6</sup>). During the last 20 years, the community has made a large effort to finance and to operate interferometric instruments in the infrared and millimeter, for example: GRAVITY (near-infrared), MATISSE (mid-infrared) at the Very Large Telescope Interferometer (VLTI), and the Event Horizon Telescope (millimeter). However, reconstructing images with these devices is still an area of development.
@@ -12,7 +12,7 @@ Interferometers in Astronomy provides us a level of detail proportional to the s
 From signal processing theory, recovering the image of an object from interferometric data is an “ill- posed” problem. Recovering all the pixels in the image with the limited information from an interferometer is a problem with an infinite number of solutions. Therefore, it is always necessary to include “a-priori” information about the source to solve the problem of the reconstruction.
 These “prior” conditions could be implemented in different ways for the reconstruction. Identifying the most optimal form is, however, a complex problem. At centimeter wavelengths, where the phase and the amplitude of the visibilities are known, Fourier inversion techniques (or deconvolution) are used, being CLEAN<sup>7</sup>  the most used one. With the sparse arrays, the situation is different. Here, most of the time the observables do not have a proper calibration of the Fourier phases. Therefore, regularized least-squares minimization algorithms are used for the reconstruction. The optimization is done by lowering the residuals between a model image and the data (the likelihood) and a series of regularization functions (the priors) where the inferences about the source morphology are included.
 
-## Limitations of the current reconstruction methods
+## 1.2 Limitations of the current reconstruction methods
 Despite advances in the field over the last two decades, the current imaging scheme is far from optimal. These are some of the most important problems faced by the current image-reconstruction algorithms for sparse arrays:
 
 a) The selection of regularizers is arbitrary and their effectiveness depends strongly on the “a-priori”
@@ -24,11 +24,32 @@ c) Image reconstruction is an “ad-hoc” technique for individual objects, and
 survey-like interferometric campaigns.
 Even with good data sets that are processed by experts, different convergence schemes and priors lead to results with artifacts (see e.g., the results presented in <sup>8</sup>). Neglecting the improvement of the image reconstruction framework for sparse arrays seriously limits their potential and keeps the community very small. It is also a serious detriment in the optimization of the invested resources.
 
-## Compressed Sensing
+## 1.3 Compressed Sensing
 Compressed Sensing (CS) allows us to recover a signal with less samples that the ones established from the Nyquist/Shannon theorem (see e.g. <sup>9-11</sup>). For the technique to work, the signal must be sparse and compressible on a given basis. It means that the signal can be represented by a linear combination of functions with a small number of non-zero coefficients. In CS, a set of measurements, **y**, of a given signal, **x**, can be encoded by a multiplication of the matrices **&Phi;**, **&Psi;**, and the sparse vector **&alpha;**. **&Psi;** is the transformation basis where the full signal, **x**, is sparse, and only a few coefficients in the vector **&alpha;** are non-zero. **&Phi;** is, thus, the system of measurements under which the data are taken. For a visual representation of the matrices involved in CS see Fig. 1. It is important to remark that the number of measurements in **y** is considerably smaller than the number of features/columns in  in **&Psi;**, therefore, the inverse problem to find **&alpha;** is "ill-posed". CS establishes that if the product &Theta; = **&Phi;** **&Psi;** satisfies the Restricted Isometry Property (RIP)<sup>10, 12</sup>, we will be able to recover the signal from the sub-sampled measurements. Therefore, compressed Sensing offers us a framework to solve the "ill-posed" inverse problem by a regularized optimization, using as prior the sparsity of &alpha; and/or the degree of compressibility of the signal. 
 
 Interferometric data are ideal to use Compressed Sensing for two reasons: (i) the data are a series of semi- independent measurements which provide the incoherent sampling that is needed; (ii) the interferometric data are measurements of structured images, it means that the images are highly compressible.
 The role of CS for inteferometric imaging has gain importance in the recent years. Particularly, there has been new developments in Radio Astronomy. For example PURIFY<sup>13</sup>, shows how reconstruction algorithms based on Compressed Sensing outperforms CLEAN and its variants such as MS-CLEAN and ASP-CLEAN. It is interesting to mention that this work discusses the increment in processing speed gained with Compressed Sensing over other methods. More recently, <sup>14</sup> uses CS for imaging real Very Large Array (VLA) data; and  <sup>15</sup> highlights the use of CS for dimensionality reduction applied to radio inferferometric data. Additional works on CS applied to astronomical imaging include <sup>16, 17</sup> and <sup>18</sup>.
+
+In this work, we use CS to recover infrared interferometric images from simulated Aperture Masking data.The  algorithm  presented is our proof of concept to  explore this novel technique to recover reliable infrared interferometric images. The manuscript is divided as follows: Sec. 2 describes our interferometric simulations;Sec. 3 presents our algorithm and results and; Sec. 4 summarizes our work and presents a scope for future developments.
+
+# 2. JAMES-WEBB SPACE TELESCOPE SIMULATIONS
+
+We simulated observations obtained with the Sparse Aperture Masking (SAM) mode of the instrument NIRISS(Near Infrared Imager and Slitless Spectrograph)<sup>19,20</sup> deployed at the James-Webb Space Telescope (JWST). NIRISS is an infrared (band-pass = 0.8 - 5μm) high-resolution camera which allows us to observe an object using Fizeau interferometry in the form of SAM. SAM is a technique which allows us to transform a telescope into an interferometer by placing a non-redundant mask with several pin-holes in the pupil plane of the telescope<sup>21</sup>. Therefore, at the image plane an interferogram is  formed  (see  Fig.   2). From  the  interferograms,  interferometric  observables  (Fourier  visibilities  and  phases, squared  visibilities  and  closure  phases)  are  extracted.   The  non-redundant  mask  on-board  of  NIRISS  has 7 pinholes, which produces 21 visibilities and 35 closure phases per snapshot.  For the simulations reported, wefitted the fringes directly in the image plane using a model of the mask geometry and filter bandwidth. From this model the observables were computed using a single-value decomposition (SVD) algorithm. This method is similar to the one presented by <sup>22</sup>.  To evaluate the validity of our algorithm, we compared the observables extracted with the ones obtained with ImPlaneIA<sup>23</sup>, finding similar results.
+
+**u-v plane and simulated data** ![image](Images/jwst11.png) Figure 2: **Left:** u-v coverage of our observations.  The panel displays the spatial frequencies sampled with our interferometric data for three different filters (see label on the image). From this u-v plane, 189 visibilities and 315  closure  phases  are  obtained. **Right:** Simulated interferogram at 3.8μm. The  morphology of the targetis convolved with the instrumental transfer function. Notice that the contrast of the fringe pattern decreased, blurring the interferogram due to the extended emission of the target.
+
+The SAM data, consisted in the simulation of an inclined and asymmetric proto-planetary disk observed atthree different filters (see Table 1) with the following central wavelengths:  3.8μm, 4.3μm and 4.8μm.  Given the pointing limitations of the JWST, we considered a maximum of three pointing positions at a position angle(E->N) of -10<sup>◦</sup>, 0<sup>◦</sup> and 10<sup>◦</sup>. To make the JWST/SAM simulations as realistic as possible, we included piston errors between 10 and 50 nm.  These are typical expected error values of the instrumental transfer function.  The simulated science data were calibrated with simulated interferograms of point-like objects with similar pistonerrors as the science data.  The u-v coverage employed for image reconstruction includes 318 data points (V2+Fourier phases + CPs) and combines the different simulated pointing positions and wavelengths (see Fig. 2). Finally, the simulated data was stored into a standard OIFITS<sup>24</sup> file.
+
+<p align="center">
+  <img width="600" height="200" src="Images/niriss_filters.png">
+</p>
+
+# 3. OPTIMIZATION BASED ON COMPRESSED SENSING
+
+To solve the image optimization problem, the pythonscikit-learn<sup>25</sup> library was used. More explicitly, the Least Absolute Shrinkage and Selection Operator (LASSO) algorithm<sup>26</sup> was selected. This LASSO implementation uses a regularized minimization of the following form:
+
+
+
 
 # References 
 [1]  GRAVITY Collaboration, Lacour, S., Nowak, M., Wang, J., Pfuhl, O., Eisenhauer, F., et al., “First directdetection  of  an  exoplanet  by  optical  interferometry-astrometry  and  k-band  spectroscopy  of  hr  8799  e,”Astronomy & Astrophysics623, L11 (2019).
@@ -66,3 +87,27 @@ The role of CS for inteferometric imaging has gain importance in the recent year
 [17]  Wenger,  S.,  Magnor,  M.,  Pihlstr ̈om,  Y.,  Bhatnagar,  S.,  and  Rau,  U.,  “Sparseri:  A  compressed  sensingframework for aperture synthesis imaging in radio astronomy,”Publications of the Astronomical Society ofthe Pacific122(897), 1367 (2010).
 
 [18]  Li, S., Mi, T., and Liu, Y., “Sparse dual frames in compressed sensing,” in [Wavelets  and  Sparsity  XIV],Papadakis, M., Ville, D. V. D., and Goyal, V. K., eds.,8138, 180 – 191, International Society for Opticsand Photonics, SPIE (2011)
+
+[19]  Doyon,  R.,  Hutchings,  J.  B.,  Beaulieu,  M.,  Albert,  L.,  Lafreniere,  D.,  Willott,  C.,  et  al.,  “The  JWSTFine  Guidance  Sensor  (FGS)  and  Near-Infrared  Imager  and  Slitless  Spectrograph  (NIRISS),”  in  [SpaceTelescopes  and  Instrumentation  2012:   Optical,  Infrared,  and  Millimeter  Wave],  Clampin,  M.  C.,  Fazio,G.  G.,  MacEwen,  H.  A.,  and  Oschmann,  Jacobus  M.,  J.,  eds.,Society  of  Photo-Optical  InstrumentationEngineers (SPIE) Conference Series8442, 84422R (Sept. 2012).
+
+[20]  Sivaramakrishnan, A., Tuthill, P. G., Ireland, M. J., Lloyd, J. P., Martinache, F., Soummer, R., Makidon,R. B., Doyon, R., Beaulieu, M., and Beichman, C. A., “Planetary system and star formation science withnon-redundant masking on JWST,” in [Techniques  and  Instrumentation  for  Detection  of  Exoplanets  IV],Shaklan,  S. B.,  ed.,Society  of  Photo-Optical  Instrumentation  Engineers  (SPIE)  Conference  Series7440,74400Y (Aug. 2009).
+
+[21]  Sanchez-Bermudez, J., Sch ̈odel, R., Alberdi, A., and Pott, J. U., “NaCo/SAM observations of sources atthe Galactic Center,” in [Journal of Physics Conference Series],Journal of Physics Conference Series372,012025 (July 2012).
+
+[22]  Lacour, S., Tuthill, P., Amico, P., Ireland, M., Ehrenreich, D., Huelamo, N., and Lagrange, A.-M., “Sparseaperture masking at the vlt-i. faint companion detection limits for the two debris disk stars hd 92945 andhd 141569,”Astronomy & Astrophysics532, A72 (2011).
+
+[23]  Greenbaum, A. Z., Pueyo, L., Sivaramakrishnan, A., and Lacour, S., “An Image-plane Algorithm for JWST’sNon-redundant Aperture Mask Data,”798, 68 (Jan. 2015).
+
+[24]  Pauls, T. A., Young, J. S., Cotton, W. D., and Monnier, J. D., “A Data Exchange Standard for Optical(Visible/IR) Interferometry,”117, 1255–1262 (Nov. 2005).
+
+[25]  Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., Blondel, M., Prettenhofer,P.,  Weiss,  R.,  Dubourg,  V.,  Vanderplas,  J.,  Passos,  A.,  Cournapeau,  D.,  Brucher,  M.,  Perrot,  M.,  andDuchesnay,  E.,  “Scikit-learn:   Machine  learning  in  Python,”Journal  of  Machine  Learning  Research12,2825–2830 (2011).
+
+[26]  Santosa, F. and Symes, W. W., “Linear inversion of band-limited reflection seismograms,”SIAM  Journalon Scientific and Statistical Computing7(4), 1307–1330 (1986).
+
+[27]  Gruber,  M.,  [Improving  Efficiency  by  Shrinkage:   The  James–Stein  and  Ridge  Regression  Estimators],vol. 156, CRC Press (1998).
+
+[28]  Tibshirani, R., “Regression shrinkage and selection via the lasso,”Journal of the Royal Statistical Society:Series B (Methodological)58(1), 267–288 (1996).
+
+[29]  Rokach, L. and Maimon, O., [Data mining with decision trees. Theory and applications], vol. 69 (01 2008).
+
+[30]  Buscher, D., “Very high angular resolution imaging (iau symp. 158), ed. jg robertson & wj tango,” (1994).[31]  Baron, F., Monnier, J. D., and Kloppenborg, B., “A novel image reconstruction software for optical/infraredinterferometry,” in [Optical and Infrared Interferometry II],7734, 77342I, International Society for Opticsand Photonics (2010).
