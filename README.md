@@ -1,5 +1,8 @@
 # CompressedSensingImaging
 This repository includes software to recover interferometric images based on Compressed Sensing
+
+**Project supported by UNAM PAPIIT IA 101220.**
+
 # 1. Introduction
 ## 1.1 The "ill-posed" problem of interferometric imaging
 <p align="justify">
@@ -153,9 +156,7 @@ Figure 8: <strong>Left:</strong> Reconstructed CS LASSO image. <strong>Middle:</
 In this work, we present infrared interferometric image reconstruction using Compressed Sensing. This new framework has demonstrated to be an important tool to solve the ill-posed problem of interferometric imaging. Our proof of concept algorithm and the preliminary tests show that the technique has the potential to recover reliable images with the minimum number of components of the sensing basis (or Dictionary). This is translated into a high-contrast images which appears  to surpass the level of precision of other methods available in the community. For CS reconstructions, we noticed a decrease in the number of the residuals caused by the incompleteness of the u-v coverage and by the effect of the regularizer, compared with other methods. However, to fully test the validity of these results, we consider that this new technique should be explored in more detail, not only on simulated data but on real ones; for example, by using observations obtained with interferometers like GRAVITY/VLTI or MATISSE/VLTI. Future developments of our CS algorithm include the development of a systematic methodology to select the  hyperparameter value, the implementation of chromatic reconstructions and the recovery of images with temporal variability. In particular, CS provides us the framework to test techniques such as Dynamic Mode Decomposition (DMD). It is new data-driven method that uses time-resolved data sets to provide a temporal decomposition of the data in different structures (called “modes”) that are spatially coherent, and from which a subsequent reconstruction of the original signal could be performed.
 </p>
 
-## ACKNOWLEDGMENTS
 
-JSB, ARG, and HM acknowledges the full support from the UNAM PAPIIT project IA 101220. ARG acknowledges the PhD scholarship granted by CONACyT (CVU:  858378).   JSB  and  AS  thank  the  STScI  Director’s Discretionary Fund for travel support. AA and RS acknowledge financial support from the State Agency for Research of  the Spanish MCIU through the ”Center of Excellence Severo Ochoa” award for the Instituto de Astrofísica de Andalucía (SEV-2017-0709)
 
 # References 
 [1]  GRAVITY Collaboration, Lacour, S., Nowak, M., Wang, J., Pfuhl, O., Eisenhauer, F., et al., “First directdetection  of  an  exoplanet  by  optical  interferometry-astrometry  and  k-band  spectroscopy  of  hr  8799  e,”Astronomy & Astrophysics623, L11 (2019).
