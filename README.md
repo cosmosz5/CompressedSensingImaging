@@ -2,48 +2,78 @@
 This repository includes software to recover interferometric images based on Compressed Sensing
 # 1. Introduction
 ## 1.1 The "ill-posed" problem of interferometric imaging
+<p align="justify">
 With a resolution power between ten and several thousand times better than stand-alone telescopes, interferometry is a technique capable of providing us the best angular resolution for astronomical observations. With the possibility to recover milliarcseconds (mas) images in the infrared and microarcseconds (&mu;as) with the new very long-baseline interferometers (VLBI) in the (sub-)millimeter, interferometry is key to research that goes from the search of exo-planets<sup>1</sup> , to study high-mass stars<sup>2</sup>, proto-planetary disks<sup>3</sup>, to map the core of Active Galactic Nuclei<sup>4</sup> and, to probe fundamental physics<sup>5</sup>.
+</p>
 
+<p align="justify">
 Imaging is the most intuitive form to analyze complex interferometric data. At centimeter wavelengths, imaging has been possible since the 1960s. However, this is different in the infrared and with the new VLBI (sub-)millimeter arrays. There are two main problems: (i) the interferometric arrays are only composed by a few telescopes or antennas and; (ii) the atmosphere corrupts the phase of the observations, preventing their proper calibration, and forcing us to look for another observable to infer the centro-symmetric morphology of the observed source: the closure phase (see e.g., <sup>6</sup>). During the last 20 years, the community has made a large effort to finance and to operate interferometric instruments in the infrared and millimeter, for example: GRAVITY (near-infrared), MATISSE (mid-infrared) at the Very Large Telescope Interferometer (VLTI), and the Event Horizon Telescope (millimeter). However, reconstructing images with these devices is still an area of development.
+</p>
 
 **Graphical decription of Compressed Sensing** 
 <p align="center">
   <img width="800" height="400" src="Images/CS_1_v2.png">
 </p>
 
-Figure 1. Visual representation of the matrices involved in Compressed Sensing. **&Psi;** has a dimension of **M** x **N** and, it represents the components of the sensing basis. The matrix **&Phi;** has a size of **S** x **M**. For example, a matrix with zeros and ones that masks the u-v frequencies that are not sampled by the interferometer. **&alpha;** is a vector that has only K non-zero coefficients that follows the condition:  K < S << N.
+<p align="justify">
+Figure 1. Visual representation of the matrices involved in Compressed Sensing. <strong>&Psi;</strong> has a dimension of <strong>M</strong> x <strong>N</strong> and, it represents the components of the sensing basis. The matrix <strong>&Phi;</strong> has a size of <strong>S</strong> x <strong>M</strong>. For example, a matrix with zeros and ones that masks the u-v frequencies that are not sampled by the interferometer. <strong>&alpha;</strong> is a vector that has only K non-zero coefficients that follows the condition:  K < S << N.
+</p>
 
+<p align="justify">
 Interferometers in Astronomy provides us a level of detail proportional to the separation between each pair of telescopes, called baselines, that forms the array. Each one of these baselines maps information, at a given orientation, of the source’s brightness distribution. The interferometric observables are a series of amplitudes and phases of the different spatial frequencies that forms the powerspectrum of the source. Each one of the frequencies corresponds to different details in the image. The highest ones trace the finest textures (e.g., point-like objects), while the lowest ones trace the most extended textures (e.g., contours). An image is, thus, the composition of an infinite number of textures. However, the interferometer only samples a few of them.
-From signal processing theory, recovering the image of an object from interferometric data is an “ill- posed” problem. Recovering all the pixels in the image with the limited information from an interferometer is a problem with an infinite number of solutions. Therefore, it is always necessary to include “a-priori” information about the source to solve the problem of the reconstruction.
-These “prior” conditions could be implemented in different ways for the reconstruction. Identifying the most optimal form is, however, a complex problem. At centimeter wavelengths, where the phase and the amplitude of the visibilities are known, Fourier inversion techniques (or deconvolution) are used, being CLEAN<sup>7</sup>  the most used one. With the sparse arrays, the situation is different. Here, most of the time the observables do not have a proper calibration of the Fourier phases. Therefore, regularized least-squares minimization algorithms are used for the reconstruction. The optimization is done by lowering the residuals between a model image and the data (the likelihood) and a series of regularization functions (the priors) where the inferences about the source morphology are included.
+From signal processing theory, recovering the image of an object from interferometric data is an “ill- posed” problem. Recovering all the pixels in the image with the limited information from an interferometer is a problem with an infinite number of solutions. Therefore, it is always necessary to include “a-priori” information about the source to solve the problem of the reconstruction. These “prior” conditions could be implemented in different ways for the reconstruction. Identifying the most optimal form is, however, a complex problem. At centimeter wavelengths, where the phase and the amplitude of the visibilities are known, Fourier inversion techniques (or deconvolution) are used, being CLEAN<sup>7</sup>  the most used one. With the sparse arrays, the situation is different. Here, most of the time the observables do not have a proper calibration of the Fourier phases. Therefore, regularized least-squares minimization algorithms are used for the reconstruction. The optimization is done by lowering the residuals between a model image and the data (the likelihood) and a series of regularization functions (the priors) where the inferences about the source morphology are included.
+</p>
 
 ## 1.2 Limitations of the current reconstruction methods
-Despite advances in the field over the last two decades, the current imaging scheme is far from optimal. These are some of the most important problems faced by the current image-reconstruction algorithms for sparse arrays:
 
+<p align="justify">
+Despite advances in the field over the last two decades, the current imaging scheme is far from optimal. These are some of the most important problems faced by the current image-reconstruction algorithms for sparse arrays:
+</p>
+
+<p align="justify">
 a) The selection of regularizers is arbitrary and their effectiveness depends strongly on the “a-priori”
 knowledge of the source’s brightness distribution, u-v coverage, and pixel grid input parameters. This is a particularly serious problem (i) when sources are mapped for the first time, (ii) when unknown structures are tried to be discovered, and/or (iii) when there is temporal or spectral variability.
+</p>
 
+<p align="justify">
 b) Selecting the weights between the different priors is complex and correlations between them might lead to strong artifacts, creating non-linear responses with the likelihood, which makes it hard to evaluate the optimal trade-off between the different terms in the minimization.
+<p/>
 
+<p align="justify">
 c) Image reconstruction is an “ad-hoc” technique for individual objects, and not fully suitable for
 survey-like interferometric campaigns.
 Even with good data sets that are processed by experts, different convergence schemes and priors lead to results with artifacts (see e.g., the results presented in <sup>8</sup>). Neglecting the improvement of the image reconstruction framework for sparse arrays seriously limits their potential and keeps the community very small. It is also a serious detriment in the optimization of the invested resources.
+<p/>
 
 ## 1.3 Compressed Sensing
-Compressed Sensing (CS) allows us to recover a signal with less samples that the ones established from the Nyquist/Shannon theorem (see e.g. <sup>9-11</sup>). For the technique to work, the signal must be sparse and compressible on a given basis. It means that the signal can be represented by a linear combination of functions with a small number of non-zero coefficients. In CS, a set of measurements, **y**, of a given signal, **x**, can be encoded by a multiplication of the matrices **&Phi;**, **&Psi;**, and the sparse vector **&alpha;**. **&Psi;** is the transformation basis where the full signal, **x**, is sparse, and only a few coefficients in the vector **&alpha;** are non-zero. **&Phi;** is, thus, the system of measurements under which the data are taken. For a visual representation of the matrices involved in CS see Fig. 1. It is important to remark that the number of measurements in **y** is considerably smaller than the number of features/columns in  in **&Psi;**, therefore, the inverse problem to find **&alpha;** is "ill-posed". CS establishes that if the product &Theta; = **&Phi;** **&Psi;** satisfies the Restricted Isometry Property (RIP)<sup>10, 12</sup>, we will be able to recover the signal from the sub-sampled measurements. Therefore, compressed Sensing offers us a framework to solve the "ill-posed" inverse problem by a regularized optimization, using as prior the sparsity of &alpha; and/or the degree of compressibility of the signal. 
+<p align="justify">
+Compressed Sensing (CS) allows us to recover a signal with less samples that the ones established from the Nyquist/Shannon theorem (see e.g. <sup>9-11</sup>). For the technique to work, the signal must be sparse and compressible on a given basis. It means that the signal can be represented by a linear combination of functions with a small number of non-zero coefficients. In CS, a set of measurements, <strong>y</strong>, of a given signal, <strong>x</strong>, can be encoded by a multiplication of the matrices <strong>&Phi;</strong>, <strong>&Psi;</strong>, and the sparse vector <strong>&alpha;</strong>. <strong>&Psi;</strong> is the transformation basis where the full signal, <strong>x</strong>, is sparse, and only a few coefficients in the vector <strong>&alpha;</strong> are non-zero. <strong>&Phi;</strong> is, thus, the system of measurements under which the data are taken. For a visual representation of the matrices involved in CS see Fig. 1. It is important to remark that the number of measurements in <strong>y</strong> is considerably smaller than the number of features/columns in  in <strong>&Psi;</strong>, therefore, the inverse problem to find <strong>&alpha;</strong> is "ill-posed". CS establishes that if the product &Theta; = <strong>&Phi;&Psi;</strong> satisfies the Restricted Isometry Property (RIP)<sup>10, 12</sup>, we will be able to recover the signal from the sub-sampled measurements. Therefore, compressed Sensing offers us a framework to solve the "ill-posed" inverse problem by a regularized optimization, using as prior the sparsity of &alpha; and/or the degree of compressibility of the signal. 
+</p>
 
+<p align="justify">
 Interferometric data are ideal to use Compressed Sensing for two reasons: (i) the data are a series of semi- independent measurements which provide the incoherent sampling that is needed; (ii) the interferometric data are measurements of structured images, it means that the images are highly compressible.
 The role of CS for inteferometric imaging has gain importance in the recent years. Particularly, there has been new developments in Radio Astronomy. For example PURIFY<sup>13</sup>, shows how reconstruction algorithms based on Compressed Sensing outperforms CLEAN and its variants such as MS-CLEAN and ASP-CLEAN. It is interesting to mention that this work discusses the increment in processing speed gained with Compressed Sensing over other methods. More recently, <sup>14</sup> uses CS for imaging real Very Large Array (VLA) data; and  <sup>15</sup> highlights the use of CS for dimensionality reduction applied to radio inferferometric data. Additional works on CS applied to astronomical imaging include <sup>16, 17</sup> and <sup>18</sup>.
+</p>
 
+<p align="justify">
 In this work, we use CS to recover infrared interferometric images from simulated Aperture Masking data.The  algorithm  presented is our proof of concept to  explore this novel technique to recover reliable infrared interferometric images. The manuscript is divided as follows: Sec. 2 describes our interferometric simulations;Sec. 3 presents our algorithm and results and; Sec. 4 summarizes our work and presents a scope for future developments.
+</p>
 
 # 2. JAMES-WEBB SPACE TELESCOPE SIMULATIONS
-
+<p align="justify">
 We simulated observations obtained with the Sparse Aperture Masking (SAM) mode of the instrument NIRISS(Near Infrared Imager and Slitless Spectrograph)<sup>19,20</sup> deployed at the James-Webb Space Telescope (JWST). NIRISS is an infrared (band-pass = 0.8 - 5μm) high-resolution camera which allows us to observe an object using Fizeau interferometry in the form of SAM. SAM is a technique which allows us to transform a telescope into an interferometer by placing a non-redundant mask with several pin-holes in the pupil plane of the telescope<sup>21</sup>. Therefore, at the image plane an interferogram is  formed  (see  Fig.   2). From  the  interferograms,  interferometric  observables  (Fourier  visibilities  and  phases, squared  visibilities  and  closure  phases)  are  extracted.   The  non-redundant  mask  on-board  of  NIRISS  has 7 pinholes, which produces 21 visibilities and 35 closure phases per snapshot.  For the simulations reported, wefitted the fringes directly in the image plane using a model of the mask geometry and filter bandwidth. From this model the observables were computed using a single-value decomposition (SVD) algorithm. This method is similar to the one presented by <sup>22</sup>.  To evaluate the validity of our algorithm, we compared the observables extracted with the ones obtained with ImPlaneIA<sup>23</sup>, finding similar results.
+</p>
 
-**u-v plane and simulated data** ![image](Images/jwst11.png) Figure 2: **Left:** u-v coverage of our observations.  The panel displays the spatial frequencies sampled with our interferometric data for three different filters (see label on the image). From this u-v plane, 189 visibilities and 315  closure  phases  are  obtained. **Right:** Simulated interferogram at 3.8μm. The  morphology of the targetis convolved with the instrumental transfer function. Notice that the contrast of the fringe pattern decreased, blurring the interferogram due to the extended emission of the target.
+**u-v plane and simulated data** 
+![image](Images/jwst11.png) 
 
+<p align="justify">
+Figure 2: <strong>Left:</strong> u-v coverage of our observations. The panel displays the spatial frequencies sampled with our interferometric data for three different filters (see label on the image). From this u-v plane, 189 visibilities and 315  closure  phases  are  obtained. <strong>Right:</strong> Simulated interferogram at 3.8μm. The  morphology of the targetis convolved with the instrumental transfer function. Notice that the contrast of the fringe pattern decreased, blurring the interferogram due to the extended emission of the target.
+</p>
+
+<p align="justify">
 The SAM data, consisted in the simulation of an inclined and asymmetric proto-planetary disk observed atthree different filters (see Table 1) with the following central wavelengths:  3.8μm, 4.3μm and 4.8μm.  Given the pointing limitations of the JWST, we considered a maximum of three pointing positions at a position angle(E->N) of -10<sup>◦</sup>, 0<sup>◦</sup> and 10<sup>◦</sup>. To make the JWST/SAM simulations as realistic as possible, we included piston errors between 10 and 50 nm.  These are typical expected error values of the instrumental transfer function.  The simulated science data were calibrated with simulated interferograms of point-like objects with similar pistonerrors as the science data.  The u-v coverage employed for image reconstruction includes 318 data points (V<sup>2</sup> + Fourier phases + CPs) and combines the different simulated pointing positions and wavelengths (see Fig. 2). Finally, the simulated data was stored into a standard OIFITS<sup>24</sup> file.
+</p>
 
 <p align="center">
   <img width="600" height="200" src="Images/niriss_filters.png">
@@ -51,48 +81,77 @@ The SAM data, consisted in the simulation of an inclined and asymmetric proto-pl
 
 # 3. OPTIMIZATION BASED ON COMPRESSED SENSING
 
+<p align="justify">
 To solve the image optimization problem, the python scikit-learn<sup>25</sup> library was used. More explicitly, the Least Absolute Shrinkage and Selection Operator (LASSO) algorithm<sup>26</sup> was selected. This LASSO implementation uses a regularized minimization of the following form:
+</p>
 
 ![image](Images/lasso_eq.png)
 
+<p align="justify">
 where N is the total number of elements in the sampled signal, y, and λ is the value of the hyperparameter that weights the regularizer. It is important to remark that the constraint region of the l1-norm has the form of an hypercube with several corners, which ensure sparsity of &alpha; for a convex optimization problem.  This is not the case by using, for example a Ridge regression<sup>27</sup> with ‖&alpha;‖<sup>2</sup><sub>2</sub>, where the constraint region is a rotationalinvariant n-sphere.  This can also be interpreted as LASSO being a linear regression model with a Laplace prior distribution, with a sharp peak at its mean. In contrast, Gaussian prior distribution of coefficients in a Ridge regression<sup>28</sup> has a more soften peak around its mean.
+</p>
 
 **Diagram of the Compressed Sensing Algorithm**
+
 <p align="center">
   <img width="800" height="600" src="Images/diagram_lasso2.png">
 </p>
 
-Figure 4: The diagram shows a visual representation of the CS LASSO implementation of our work. A Dictionary of models (**&theta;** = **&Phi;&Psi;**) is created with a group of images (**&Psi;**), which are transformed into the measured observables atthe simulated u-v plane (**&Phi;**).  Then, the Dictionary is compared with the data (**y**) and a set of non-zero coefficients (**&alpha;**) are selected. This process is repeated over a given number of iterations until the best-fit reconstructed image (**x**) is obtained.
+<p align="justify">
+Figure 4: The diagram shows a visual representation of the CS LASSO implementation of our work. A Dictionary of models (<strong>&theta;</strong> = <strong>&Phi;&Psi;</strong>) is created with a group of images (<strong>&Psi;</strong>), which are transformed into the measured observables atthe simulated u-v plane (<strong>&Phi;</strong>). Then, the Dictionary is compared with the data (<strong>y</strong>) and a set of non-zero coefficients (<strong>&alpha;</strong>) are selected. This process is repeated over a given number of iterations until the best-fit reconstructed image (<strong>x</strong>) is obtained.
+</p>
 
+<p align="justify">
 Before performing the minimization, a precomputed Dictionary (Θ) with 10<sup>4</sup> different disk-like structures was created. The random images of the disks were created  using a pixel grid of 71×71 pixels with a pixelscale of 10 milliarcseconds (mas). To transform those images into the system of measurements of our data, their Fourier transform were performed using a proprietary implementation of the regularly spaced Fast Fourier Transform (FFT) and, the observables (squared visibilities, Fourier phases and closure phases) were obtained for the sampled u-v frequencies. Each set of observables was centered and scaled to have a mean equals to zero and standard deviation equals to the unity. Finally, the different observables were merged into a single column vector (or atom). The different atoms were stacked to create the different columns of the final Dictionary and stored into a python binary file. Once the Dictionary was integrated, LASSO was used to solve for the non-zero coefficients of α that fit the observables and reconstruct the image.  LASSO worked over 10<sup>3</sup> iterations with a pre-defined value of the hyperparameter λ. Figure 4 displays a schematic representation of the described algorithm.
-  
+</p>
+
+<p align="justify">  
   Figure 5 shows the best-fit image obtained with our CS LASSO algorithm together with the original model image. Notice that the general structure of the disk is reproduced. The reconstructed morphology shows the correct inclination and position angle. It also shows the brighter emission of the ring along the semi-major axis. The inner cavity is also clearly observed. However, the size of the semi-minor axis is larger than the one of the model image. This can be appreciated in the map of the residuals formed by subtracting the image model from the reconstructed one. Figure 6 shows that the observables are well reproduced by the reconstructed image.
-  
-**Best-fit image based on Compressed Sensing**![image](Images/mod_lasso_ress.png)Figure 5: **Left:** Model image from which the simulated data were obtained. **Middle:** Reconstructed CS LASSO image. **Right:** Map of residuals. The **left** and **right** panels are normalized to the unity and the color map scale is the same for an easy comparison between the two of them.
+</p>
+
+**Best-fit image based on Compressed Sensing**
+
+![image](Images/mod_lasso_ress.png)
+<p align="justify">
+Figure 5: <strong>Left:</strong> Model image from which the simulated data were obtained. <strong>Middle:</strong> Reconstructed CS LASSO image. <strong>Right:</strong> Map of residuals. The <strong>left</strong> and <strong>right</strong> panels are normalized to the unity and the color map scale is the same for an easy comparison between the two of them.
+</p>
 
 **Recovered observables from reconstructed CS image**
 <p align="center">
   <img width="900" height="450" src="Images/observables_001_2.png">
 </p>
+<p align="justify">
+Figure 6:  Comparison between the data (black dots) and the recovered Squared visibilities and Closure Phases from the reconstructed CS LASSO images. The <strong>left</strong> panel displays the squared visibilities versus spatial frequency while the <strong>right</strong> panel shows the closure phases versus spatial frequencies.
+</p>
 
-Figure 6:  Comparison between the data (black dots) and the recovered Squared visibilities and Closure Phases from the reconstructed CS LASSO images. The **left** panel displays the squared visibilities versus spatial frequency while the **right** panel shows the closure phases versus spatial frequencies.
-
+<p align="justify">
 We tested various values of λ to systematically determine how it is affecting the reconstruction. In Figure 7, there are plotted the reconstructions obtained with four values of λ: 0.001, 0.01, 0.1 and 0.5. The recovered structures of the maps change for different values of the hyperparameter, being λ = 0.01 the optimal one. When the image is over-regularized by enforcing a minimum number of components, the structure of the target appears to be completely different to the real structure. In our case, the solution with λ = 0.5 is only formed by one single atom from the Dictionary. On the other hand, when the image is under-regularized, additional structures appear on the recovered map. For example, the image obtained with λ= 0.001 shows a central component at the position of the inner cavity.  For this reconstruction, 419 non-zero atoms served to recover the image. Not having a reliable method to select the value of λ is an important limitation not only for this implementation of CS LASSO but for other methods available in the community. In this work the best value of λ was manually selected after trying several values and visually inspecting the solutions. However, this procedure is far from optimal. One possibility to ameliorate the problem is to use decision tree algorithms (see e.g. <sup>29</sup>) to discriminate between the different hyperparameter values.  This methodology will be tested and implemented in future developments of our software.
+</p>
 
 **Role of λ on Compressed Sensing images**
 <p align="center">
   <img width="650" height="550" src="Images/rings_lambda2.png">
 </p>
 
-Figure 7:  The panels display the reconstructed CS LASSO images using different values of the hyperparameter, λ(see label on the text). Notice that the structure changes significantly between the over-regularized and the under-regularized images.
+<p align="justify">
+Figure 7:  The panels display the reconstructed CS LASSO images using different values of the hyperparameter, λ (see label on the text). Notice that the structure changes significantly between the over-regularized and the under-regularized images.
+</p>
 
+<p align="justify">
 To  evaluate the quality of our reconstructions, we also generated images using two other codes available in  the  community: BSMEM<sup>30</sup> and SQUEEZE<sup>31</sup>. The first one uses maximum entropy for the regularization and a gradient descent method with a trust region for the minimization. The second one could use different types of regularizations, including sparsity (in the form of the l0-norm). For the minimization a Markov-Chain Monte-Carlo (MCMC) algorithm  is  employed.  Similar pixel scale and grid parameters between CS and the reconstructions using BSMEM and SQUEEZE were used. Figure 8 shows the  reconstructions obtained with each one of the different software. Notice that the three algorithms managed to recover the general (position angle and size) structure of the target. However, different artifacts are observed. For example, the BSMEM image shows the two brightest spots of the disk. However, it does not recover the central cavity. This can be easily explained because the Maximum Entropy enforces a smooth brightness transition between the different pixels in the image. The SQUEEZE reconstruction using the l0-norm shows a map with a ”granular” structure, which does not provide well defined loci for the maximum. This image does not show a clear cavity. We remark that the SQUEEZE image can be improved by using additional regularizers. Nevertheless, this is obtained at the cost of being slower. Also, the selection of the hyperaparameters becomes more complicated for more regularizers involved in the reconstruction. Both the SQUEEZE and BSMEM images show additional artifacts around the central source. This is not the case of the CS LASSO image, which shows a uniform background. To estimate the signal-to-noise ratio (SNR) between the peak of the emission and the noise floor of the images, we computed the mean value of the background using all the pixels outside a circular mask with a radius of 15 pixels centered at the middle of the image. The SNR values are: 3.7 x 10<sup>4</sup>, 1.0 x 10<sup>2</sup> and 0.8 x 10<sup>2</sup> for the CS LASSO, SQUEEZE and BSMEM images, respectively.  These values suggest that the CS LASSO reconstruction achieved a contrast two orders of magnitude larger than the other reconstructions.  This is particularly encouraging for the case of high-contrast observations as the ones expected with the JWST. A more detailed analysis of the contrast ratios achieved with CS will be done in a future work.
+</p>
 
-**Comparison between Compressed Sensing and other software** ![image](Images/lasso_bsm_sq.png) Figure 8: **Left:** Reconstructed CS LASSO image. **Middle:** Reconstructed SQUEEZE image. **Right:** Reconstructed BSMEM image. 
+**Comparison between Compressed Sensing and other software** 
 
+![image](Images/lasso_bsm_sq.png)
+<p align="justify">
+Figure 8: <strong>Left:</strong> Reconstructed CS LASSO image. <strong>Middle:</strong> Reconstructed SQUEEZE image. <strong>Right:</strong> Reconstructed BSMEM image. 
+</p>
 
 ## SUMMARY AND FUTURE WORK
+<p align="justify">
 In this work, we present infrared interferometric image reconstruction using Compressed Sensing. This new framework has demonstrated to be an important tool to solve the ill-posed problem of interferometric imaging. Our proof of concept algorithm and the preliminary tests show that the technique has the potential to recover reliable images with the minimum number of components of the sensing basis (or Dictionary). This is translated into a high-contrast images which appears  to surpass the level of precision of other methods available in the community. For CS reconstructions, we noticed a decrease in the number of the residuals caused by the incompleteness of the u-v coverage and by the effect of the regularizer, compared with other methods. However, to fully test the validity of these results, we consider that this new technique should be explored in more detail, not only on simulated data but on real ones; for example, by using observations obtained with interferometers like GRAVITY/VLTI or MATISSE/VLTI. Future developments of our CS algorithm include the development of a systematic methodology to select the  hyperparameter value, the implementation of chromatic reconstructions and the recovery of images with temporal variability. In particular, CS provides us the framework to test techniques such as Dynamic Mode Decomposition (DMD). It is new data-driven method that uses time-resolved data sets to provide a temporal decomposition of the data in different structures (called “modes”) that are spatially coherent, and from which a subsequent reconstruction of the original signal could be performed.
+</p>
 
 ## ACKNOWLEDGMENTS
 
